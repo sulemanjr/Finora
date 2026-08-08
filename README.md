@@ -1,7 +1,7 @@
 🚀 Finora AI – Your AI-Powered Personal Finance App
 Finora AI is a smart personal finance management app that helps you track expenses, manage recurring payments, and gain actionable, AI-driven insights—all designed for modern financial wellness.
 
-Built with ❤️ by faizzshaykh
+Built by Suleman
 
 ✨ Features
 📊 AI-Driven Insights: Get smart analysis of your spending patterns with personalized suggestions to help you save and budget more effectively.
