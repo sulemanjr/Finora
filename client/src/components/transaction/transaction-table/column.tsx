@@ -23,6 +23,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency } from "@/lib/format-currency";
+import { useTypedSelector } from "@/app/hook";
 import useEditTransactionDrawer from "@/hooks/use-edit-transaction-drawer";
 import { TransactionType } from "@/features/transaction/transationType";
 import { _TRANSACTION_FREQUENCY, _TRANSACTION_TYPE } from "@/constant";
@@ -132,6 +133,8 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
       const amount = parseFloat(row.getValue("amount"));
       const type = row.getValue("type");
 
+      const { user } = useTypedSelector((state) => state.auth);
+      const currency = user?.currency || "USD";
       return (
         <div
           className={`text-right font-medium ${
@@ -141,7 +144,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
           }`}
         >
           {type === _TRANSACTION_TYPE.EXPENSE ? "-" : "+"}
-          {formatCurrency(amount)}
+          {formatCurrency(amount, { currency })}
         </div>
       );
     },

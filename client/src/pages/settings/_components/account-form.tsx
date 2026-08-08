@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { detectCurrencyByIP } from "@/lib/detect-currency";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,16 +24,15 @@ import { updateCredentials } from "@/features/auth/authSlice";
 const accountFormSchema = z.object({
   name: z
     .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
+    .min(2, { message: "Name must be at least 2 characters." })
     .optional(),
   profilePicture: z.string(),
+  currency: z.enum(["USD", "INR", "EUR", "GBP", "JPY"]).optional(),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-export function AccountForm() {
+export const AccountForm = () => {
   const dispatch = useAppDispatch();
   const { user } = useTypedSelector((state) => state.auth);
 
@@ -46,16 +46,25 @@ export function AccountForm() {
     defaultValues: {
       name: user?.name || "",
       profilePicture: user?.profilePicture || "",
+      currency: user?.currency || "USD",
     },
   });
 
+  useEffect(() => {
+    if (!user?.currency) {
+      detectCurrencyByIP().then((detected) => {
+        form.setValue("currency", detected);
+      });
+    }
+  }, [user?.currency, form]);
+
   const onSubmit = (values: AccountFormValues) => {
-    console.log(values);
     if (isLoading) return;
 
     const formData = new FormData();
     formData.append("name", values.name || "");
     if (file) formData.append("profilePicture", file);
+    if (values.currency) formData.append("currency", values.currency);
 
     updateUserMutation(formData)
       .unwrap()
@@ -65,13 +74,14 @@ export function AccountForm() {
             user: {
               profilePicture: response.data.profilePicture,
               name: response.data.name,
+              currency: response.data.currency,
             },
           })
         );
         toast.success("Account updated successfully");
       })
       .catch((error) => {
-        toast.error(error.data.message || "Failed to update account");
+        toast.error(error.data?.message || "Failed to update account");
       });
   };
 
@@ -122,6 +132,7 @@ export function AccountForm() {
             </div>
           </div>
         </div>
+
         <FormField
           control={form.control}
           name="name"
@@ -135,6 +146,30 @@ export function AccountForm() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency Settings</FormLabel>
+              <FormControl>
+                <select
+                  {...field}
+                  className="input w-full border rounded px-2 py-1"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="INR">INR (₹)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="JPY">JPY (¥)</option>
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button disabled={isLoading} type="submit">
           {isLoading && <Loader className="h-4 w-4 animate-spin" />}
           Update account
@@ -142,4 +177,4 @@ export function AccountForm() {
       </form>
     </Form>
   );
-}
+};

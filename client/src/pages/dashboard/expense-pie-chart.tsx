@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { DateRangeType } from "@/components/date-range-select";
 import { formatCurrency } from "@/lib/format-currency";
+import { useTypedSelector } from "@/app/hook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPercentage } from "@/lib/format-percentage";
 import { EmptyState } from "@/components/empty-state";
@@ -44,6 +45,8 @@ const ExpensePieChart = (props: { dateRange?: DateRangeType }) => {
   });
   const categories = data?.data?.breakdown || [];
   const totalSpent = data?.data?.totalSpent || 0;
+  const { user } = useTypedSelector((state) => state.auth);
+  const currency = user?.currency || "USD";
 
   if (isFetching) {
     return <PieChartSkeleton />;
@@ -64,7 +67,7 @@ const ExpensePieChart = (props: { dateRange?: DateRangeType }) => {
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {formatCurrency(entry.value)}
+                  {formatCurrency(entry.value, { currency })}
                 </span>
                 <span className="text-xs text-muted-foreground/60">
                   ({formatPercentage(entry.percentage, { decimalPlaces: 0 })})
@@ -133,7 +136,7 @@ const ExpensePieChart = (props: { dateRange?: DateRangeType }) => {
                               y={viewBox.cy}
                               className="fill-foreground text-2xl font-bold"
                             >
-                              ${totalSpent.toLocaleString()}
+                              {formatCurrency(totalSpent, { currency })}
                             </tspan>
                             <tspan
                               x={viewBox.cx}

@@ -19,8 +19,10 @@ export const updateUserService = async (
     user.profilePicture = profilePic.path;
   }
 
+
   user.set({
     name: body.name,
+    ...(body.currency && { currency: body.currency }),
   });
 
   await user.save();

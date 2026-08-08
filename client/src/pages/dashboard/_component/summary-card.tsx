@@ -3,6 +3,7 @@ import CountUp from "react-countup";
 import { TrendingDownIcon, TrendingUpIcon, LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/format-currency";
+import { useTypedSelector } from "@/app/hook";
 import { formatPercentage } from "@/lib/format-percentage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -165,12 +166,15 @@ const SummaryCard: FC<SummaryCardProps> = ({
     );
   }
 
+  const { user } = useTypedSelector((state) => state.auth);
+  const currency = user?.currency || "USD";
   const formatCountupValue = (val: number) => {
     return isPercentageValue
       ? formatPercentage(val, { decimalPlaces: 1 })
       : formatCurrency(val, {
           isExpense: cardType === "expenses",
           showSign: cardType === "balance" && val < 0,
+          currency,
         });
   };
 

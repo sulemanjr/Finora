@@ -1,4 +1,6 @@
 import * as z from "zod";
+import { useTypedSelector } from "@/app/hook";
+import { formatCurrency } from "@/lib/format-currency";
 import { useEffect, useState } from "react";
 import { Calendar, Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -291,13 +293,20 @@ const TransactionForm = (props: {
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <CurrencyInputField
-                        {...field}
-                        disabled={isScanning}
-                        onValueChange={(value) => field.onChange(value || "")}
-                        placeholder="$0.00"
-                        prefix="$"
-                      />
+                      {/* Get currency from global state */}
+                      {(() => {
+                        const { user } = useTypedSelector((state) => state.auth);
+                        const currency = user?.currency || "USD";
+                        return (
+                          <CurrencyInputField
+                            {...field}
+                            disabled={isScanning}
+                            onValueChange={(value) => field.onChange(value || "")}
+                            placeholder={formatCurrency(0, { currency })}
+                            prefix={formatCurrency(0, { currency }).replace(/0+([.,]0+)?/, "")}
+                          />
+                        );
+                      })()}
                     </div>
                   </FormControl>
                   <FormMessage />

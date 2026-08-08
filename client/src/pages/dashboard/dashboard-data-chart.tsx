@@ -22,6 +22,7 @@ import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
 import { DateRangeType } from "@/components/date-range-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/format-currency";
+import { useTypedSelector } from "@/app/hook";
 import { useChartAnalyticsQuery } from "@/features/analytics/analyticsAPI";
 
 interface PropsType {
@@ -52,6 +53,8 @@ const DashboardDataChart: React.FC<PropsType> = (props) => {
   const chartData = data?.data?.chartData || [];
   const totalExpenseCount = data?.data?.totalExpenseCount || 0;
   const totalIncomeCount = data?.data?.totalIncomeCount || 0;
+  const { user } = useTypedSelector((state) => state.auth);
+  const currency = user?.currency || "USD";
 
   if (isFetching) {
     return <ChartSkeleton />;
@@ -156,6 +159,7 @@ const DashboardDataChart: React.FC<PropsType> = (props) => {
                             showSign: true,
                             compact: true,
                             isExpense,
+                            currency,
                           })}
                         </span>,
                         isExpense ? "Expenses" : "Income",

@@ -6,6 +6,7 @@ export interface UserDocument extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
+  currency: string; // e.g. 'USD', 'INR', 'EUR', 'GBP', 'JPY'
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>;
@@ -34,6 +35,11 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       select: true,
       required: true,
+    },
+    currency: {
+      type: String,
+      enum: ["USD", "INR", "EUR", "GBP", "JPY"],
+      default: "USD",
     },
   },
   {
